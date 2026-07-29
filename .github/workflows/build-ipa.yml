@@ -1,0 +1,98 @@
+name: Build iOS IPA
+
+# 触发方式：
+#   1. push 到 main/master 自动触发
+#   2. 在 Actions 标签页手动点 "Run workflow"
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build unsigned IPA (iOS 17 SDK)
+    runs-on: macos-14   # macOS Sonoma + Xcode 15.x，自带 iphoneos17.x SDK
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 15
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.4'
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Show tool versions
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks | grep -i ios || true
+          xcodegen --version
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build archive (unsigned)
+        run: |
+          mkdir -p build
+          xcodebuild archive \
+            -project Ares2Calc.xcodeproj \
+            -scheme Ares2Calc \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination "generic/platform=iOS" \
+            -archivePath "$PWD/build/Ares2Calc.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            ARCHS="arm64" \
+            ONLY_ACTIVE_ARCH=NO \
+            | tee build/build.log
+
+      - name: Verify archive product exists
+        run: |
+          APP_PATH="build/Ares2Calc.xcarchive/Products/Applications/Ares2Calc.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "::error::Archive product not found at $APP_PATH"
+            echo "----- last 80 lines of build log -----"
+            tail -80 build/build.log || true
+            exit 1
+          fi
+          echo "✅ Archive OK: $APP_PATH"
+          ls -la "$APP_PATH"
+
+      - name: Package unsigned IPA
+        run: |
+          APP_PATH="build/Ares2Calc.xcarchive/Products/Applications/Ares2Calc.app"
+          mkdir -p build/Payload
+          cp -R "$APP_PATH" build/Payload/
+          # 主可执行文件必须有可执行权限
+          if [ -f "build/Payload/Ares2Calc.app/Ares2Calc" ]; then
+            chmod +x "build/Payload/Ares2Calc.app/Ares2Calc"
+          fi
+          # 所有框架/dylib 同样需要可执行权限
+          find "build/Payload/Ares2Calc.app" -type f -name "*.dylib" -exec chmod +x {} \; 2>/dev/null || true
+          cd build
+          zip -qry "阿瑞斯2积分计算器-unsigned.ipa" Payload
+          mv "阿瑞斯2积分计算器-unsigned.ipa" "阿瑞斯2积分计算器.ipa"
+          ls -la "阿瑞斯2积分计算器.ipa"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ares2Calc-iOS17-unsigned-ipa
+          path: build/阿瑞斯2积分计算器.ipa
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload build log (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build/build.log
+          if-no-files-found: ignore
