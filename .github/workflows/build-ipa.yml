@@ -30,6 +30,12 @@ jobs:
           echo "---xcodegen---"
           xcodegen --version
 
+      - name: Patch PRODUCT_NAME to English (force Ares2Calc)
+        run: |
+          sed -i '' 's/PRODUCT_NAME: .*/PRODUCT_NAME: Ares2Calc/' project.yml
+          echo "---patched project.yml PRODUCT_NAME line:---"
+          grep PRODUCT_NAME project.yml || true
+
       - name: Generate Xcode project
         run: xcodegen generate
 
@@ -55,6 +61,7 @@ jobs:
             ONLY_ACTIVE_ARCH=NO \
             2>&1 | tee build/build.log
           echo "archive_exit_code=\({PIPESTATUS[0]}" >> \)GITHUB_OUTPUT
+          echo "---- archive step done ----"
 
       - name: If archive failed, dump last 120 lines of log
         if: steps.archive.outcome == 'failure' || steps.archive.outputs.archive_exit_code != '0'
@@ -67,21 +74,22 @@ jobs:
 
       - name: Verify archive product exists
         run: |
-          APP_PATH="build/Ares2Calc.xcarchive/Products/Applications/Ares2Calc.app"
-          if [ ! -d "$APP_PATH" ]; then
-            echo "::error::Archive product not found at $APP_PATH"
+          APP_PATH=$(find build/Ares2Calc.xcarchive/Products/Applications -maxdepth 1 -name "*.app" -type d 2>/dev/null | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "::error::No .app found in archive"
             echo "----- xcarchive structure -----"
-            find build/Ares2Calc.xcarchive -maxdepth 4 -type d 2>/dev/null || echo "no xcarchive directory"
+            find build/Ares2Calc.xcarchive -maxdepth 5 -type d 2>/dev/null || echo "no xcarchive"
             exit 1
           fi
-          echo "✅ Archive OK: $APP_PATH"
+          echo "✅ Found app: $APP_PATH"
           ls -la "$APP_PATH"
 
       - name: Package unsigned IPA
         run: |
-          APP_PATH="build/Ares2Calc.xcarchive/Products/Applications/Ares2Calc.app"
+          APP_PATH=$(find build/Ares2Calc.xcarchive/Products/Applications -maxdepth 1 -name "*.app" -type d 2>/dev/null | head -1)
           mkdir -p build/Payload
-          cp -R "$APP_PATH" build/Payload/
+          rm -rf build/Payload/Ares2Calc.app
+          cp -R "$APP_PATH" "build/Payload/Ares2Calc.app"
           if [ -f "build/Payload/Ares2Calc.app/Ares2Calc" ]; then
             chmod +x "build/Payload/Ares2Calc.app/Ares2Calc"
           fi
@@ -89,7 +97,10 @@ jobs:
           cd build
           zip -qry "Ares2Calc-unsigned.ipa" Payload
           mv "Ares2Calc-unsigned.ipa" "Ares2Calc.ipa"
+          echo "===== final ipa ====="
           ls -la "Ares2Calc.ipa"
+          echo "===== ipa contents ====="
+          unzip -l "Ares2Calc.ipa" | head -20
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
