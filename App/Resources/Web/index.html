@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>阿瑞斯2积分计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "微软雅黑", sans-serif;
+        }
+body {
+  margin: 0;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  width: 100%;
+}
+input, .box {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+        .box {
+            max-width: 620px;
+            width: 100%;
+            margin: 0 auto;
+            border: 4px solid #409eff;
+            border-radius: 16px;
+            padding: 30px 20px;
+            position: relative;
+        }
+.switch-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    background: #fff;
+    color: #409eff;
+    border: 2px solid #409eff;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 32px;
+    line-height: 45px;
+    text-align: center;
+    z-index: 100;
+}
+
+        h2 {
+            font-size: clamp(28px,5vw,36px);
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #222;
+            text-align: center;
+        }
+        .item {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+        .label-text {
+            font-size: clamp(18px,3vw,22px);
+            color: #333;
+            white-space: nowrap;
+            width: 240px;
+            flex-shrink: 0;
+        }
+        input[type="number"],
+        input[type="date"],
+        input[type="text"] {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 16px;
+            font-size: clamp(16px,3vw,20px);
+            border: 2px solid #ccc;
+            border-radius: 6px;
+        }
+        .pay-row {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: 12px;
+            flex-wrap: wrap;
+            width:100%;
+        }
+        #payCoin {
+            flex: 1;
+            width:100%
+        }
+        #payResult {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e63946;
+            min-width: 40px;
+            text-align: right;
+        }
+        #payTip {
+            width: 100%;
+            font-size: 14px;
+            color: #2a9d8f;
+            line-height: 1.4;
+            margin: -10px 0 20px 0;
+            padding-left: 0 !important;
+            text-align: left !important;
+        }
+        .tip-text {
+            width: 100%;
+            font-size: clamp(16px,2.5vw,19px);
+            color: #666;
+            line-height: 1.6;
+            margin: 0 0 20px 0;
+            padding-left: 0 !important;
+            text-align: left !important;
+        }
+        ::-webkit-calendar-picker-indicator {
+            transform: scale(2);
+            margin-left: 8px;
+            cursor: pointer;
+        }
+        .check-item {
+    justify-content: space-between;
+}
+.check-item input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+/*====下面紧接着粘贴整套 @media 代码====*/
+@media (max-width:720px) {
+    /*普通输入项，不是复选框：改成上下布局，标签在上，输入框占满整行 */
+    .item:not(.check-item) {
+        flex-direction: column;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .item:not(.check-item) input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /*复选框项目保持原有横向布局不变 */
+    .check-item {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+        .days-text {
+            font-size: clamp(18px,3vw,22px);
+            margin-bottom:20px;
+            text-align: right;
+        }
+        button:not(.switch-btn) {
+            width: 100%;
+            padding: 14px;
+            font-size: clamp(20px,4vw,24px);
+            background: #409eff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top:10px;
+        }
+        #result {
+            margin-top:25px;
+            font-size: clamp(18px,3vw,22px);
+            line-height: 1.8;
+            color:#222;
+            white-space: pre-line;
+            padding-left: 10px;
+        }
+        .hide {
+            display: none !important;
+        }
+        .text-orange {
+            color: #ff6600;
+            font-weight: bold;
+        }
+        .text-gray-small {
+            font-size: clamp(15px,2.2vw,18px);
+            color: #777;
+            margin: -12px 0 20px 0px;
+        }
+        .target-tip {
+            font-size: clamp(15px,2.2vw,18px);
+            color: #888;
+            margin: -12px 0 20px 0;
+            padding-left: 0px;
+        }
+        .judge-result {
+            margin-top:15px;
+            font-size: clamp(18px,3vw,22px);
+            font-weight: bold;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+        /* 表格公共基础样式 */
+        .query-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: clamp(15px,2.8vw,17px);
+        }
+        .query-table th, .query-table td {
+            padding: 12px 8px;
+            text-align: center;
+        }
+        .query-table td:first-child {
+            text-align: left;
+            padding-left: 15px;
+        }
+        .query-table td:last-child {
+            font-weight: 500;
+            color: #e63946;
+        }
+        /* 表格1：机能装备 - 紫色边框+紫色表头 */
+        .table-1 {
+            border: 2px solid #9c27b0;
+        }
+        .table-1 th, .table-1 td {
+            border: 2px solid #d8b3e2;
+        }
+        .table-1 th {
+            background-color: #9c27b0;
+            color: #fff;
+            font-weight: bold;
+        }
+        /* 表格2：龙炎装备 - 橙色边框+橙色表头 */
+        .table-2 {
+            border: 2px solid #ff7800;
+        }
+        .table-2 th, .table-2 td {
+            border: 2px solid #ffd2b3;
+        }
+        .table-2 th {
+            background-color: #ff7800;
+            color: #fff;
+            font-weight: bold;
+        }
+        /* 表格3：年兽装备 - 红色边框+红色表头 */
+        .table-3 {
+            border: 2px solid #e53935;
+        }
+        .table-3 th, .table-3 td {
+            border: 2px solid #f8bbd0;
+        }
+        .table-3 th {
+            background-color: #e53935;
+            color: #fff;
+            font-weight: bold;
+        }
+        /* 表格4：星空装备 - 天蓝色边框+天蓝色表头 */
+        .table-4 {
+            border: 2px solid #29b6f6;
+        }
+        .table-4 th, .table-4 td {
+            border: 2px solid #b3e5fc;
+        }
+        .table-4 th {
+            background-color: #29b6f6;
+            color: #fff;
+            font-weight: bold;
+        }
+        /* 表格5：星核装备 - 蓝绿色边框+蓝绿色表头 */
+        .table-5 {
+            border: 2px solid #26a69a;
+        }
+        .table-5 th, .table-5 td {
+            border: 2px solid #b2dfdb;
+        }
+        .table-5 th {
+            background-color: #26a69a;
+            color: #fff;
+            font-weight: bold;
+        }
+        /* 表格6：九霄装备 - 黄色边框+黄色表头 */
+        .table-6 {
+            border: 2px solid #ffca28;
+        }
+        .table-6 th, .table-6 td {
+            border: 2px solid #fff9c4;
+        }
+        .table-6 th {
+            background-color: #ffca28;
+            color: #fff;
+            font-weight: bold;
+        }
+        /* 表格7：极寒装备 - 蓝色边框+蓝色表头 */
+        .table-7 {
+            border: 2px solid #1565c0;
+        }
+        .table-7 th, .table-7 td {
+            border: 2px solid #bbdefb;
+        }
+        .table-7 th {
+            background-color: #1565c0;
+            color: #fff;
+            font-weight: bold;
+        }
+        /* 表格8：其他商品积分表 - 默认边框 */
+        .table-8 {
+            border: 2px solid #ccc;
+        }
+        .table-8 th, .table-8 td {
+            border: 2px solid #ccc;
+        }
+        .table-8 th {
+            background-color: #f5f5f5;
+            color: #333;
+            font-weight: bold;
+        }
+
+        /* ====================== 所需积分计算器样式 ====================== */
+        .calc-title {
+            font-size: clamp(20px, 4vw, 24px);
+            font-weight: bold;
+            margin: 30px 0 15px;
+            color: #222;
+            text-align: left;
+        }
+        .option-row {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: clamp(17px, 3vw, 20px);
+            cursor: pointer;
+        }
+        .option-item input {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+        .normal-calc-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .normal-calc-row .label-text {
+            width: 120px;
+            text-align: right;
+        }
+        #needTotal {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 16px;
+            font-size: clamp(16px, 3vw, 20px);
+            border: 2px solid #ccc;
+            border-radius: 6px;
+        }
+        #needResult {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e63946;
+            min-width: 50px;
+            text-align: right;
+        }
+        /* 快捷计算布局 */
+        .quick-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 12px;
+    align-items: center;
+}
+.quick-row select {
+    flex: 1;
+    padding: 10px 8px;  /* 增加上下内边距，框直接变粗 */
+    font-size: 16px;
+}
+.quick-calc-btn {
+    margin-top:15px;
+    width:100%;
+    padding:12px;
+    background:#409eff;
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    font-size:18px;
+    cursor:pointer;
+}
+#quickTotalScore {
+    margin-top:12px;
+    font-size:22px;
+    font-weight:bold;
+    color:#e63946;
+    text-align:center;
+        }
+    /* 底部版权信息 */
+.bottom-info {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px dashed #ccc;
+  text-align: center;
+  font-size: 14px;
+  color: #555;
+  line-height: 1.7;
+}
+.bottom-author {
+  font-size: 16px;
+  font-weight: bold;
+  color: #409eff;
+}
+
+    </style>
+</head>
+<body>
+<!-- 全局下拉菜单：放在所有页面盒子最外面，永久存在DOM中 -->
+<div id="menuList" class="hide" style="
+  position:absolute;
+  background:#ffffff;
+  border:2px solid #409eff;
+  border-radius:8px;
+  z-index:200;
+  min-width:175px;
+  overflow:hidden;
+">
+    <!-- 第一行 -->
+    <div style="padding:18px 24px;cursor:pointer;font-size:18px;border-bottom:2px solid #000000;"
+         onmouseover="this.style.backgroundColor='#e6f2ff'"
+         onmouseout="this.style.backgroundColor='#ffffff'"
+         onclick="goPage('query')">快速积分查询</div>
+
+    <!-- 第二行 -->
+    <div style="padding:18px 24px;cursor:pointer;font-size:18px;border-bottom:4px solid #000000;"
+         onmouseover="this.style.backgroundColor='#e6f2ff'"
+         onmouseout="this.style.backgroundColor='#ffffff'"
+         onclick="goPage('empty')">开发中...</div>
+
+    <!-- 第三行：返回首页独立底色区块 -->
+    <div style="padding:18px 24px;cursor:pointer;font-size:18px;background:#f0f7ff;"
+         onmouseover="this.style.backgroundColor='#d6eaff'"
+         onmouseout="this.style.backgroundColor='#f0f7ff'"
+         onclick="goPage('home')">返回首页</div>
+</div>
+<!-- 计算器A：原有积分计算器 -->
+<div id="calcA" class="box">
+    <!-- 左上角菜单唤起按钮 -->
+    <button class="switch-btn" onclick="toggleMenu(event)">🔄</button>
+
+    <h2>积分计算器</h2>
+
+    <div class="item">
+        <span class="label-text">初始游园币数量：</span>
+        <input type="number" id="coin" min="0" placeholder="请输入正整数">
+    </div>
+    <div class="text-gray-small">（空缺则默认为0，下同）</div>
+
+    <div class="item">
+        <span class="label-text">原有积分：</span>
+        <input type="number" id="score" min="0" placeholder="请输入正整数">
+    </div>
+
+    <div class="item check-item">
+        <span class="label-text">是否有后续游园币补充？</span>
+        <input type="checkbox" id="addCoin" onchange="togglePanel()">
+    </div>
+
+    <div id="extraPanel" class="hide">
+        <div class="item">
+            <span class="label-text">起始时间：</span>
+            <input type="date" id="startDate">
+        </div>
+        <div class="item">
+            <span class="label-text">结束时间：</span>
+            <input type="date" id="endDate">
+        </div>
+
+        <div class="item check-item">
+            <span class="label-text">当天的游园币是否已<span class="text-orange">全部</span>领取？</span>
+            <input type="checkbox" id="todayGet">
+        </div>
+
+        <div class="days-text">总天数：<span id="totalDays">0</span> 天</div>
+
+        <div class="item" style="flex-direction:column;align-items:flex-start;">
+            <span class="label-text">氪金及其他所得：</span><br>
+            <div class="pay-row">
+                <input type="text" id="payCoin" placeholder="例：300 600 900" oninput="calcPay()"><br>
+                <div id="payResult" style="width:100%;">0</div>
+            </div>
+        </div>
+        <div id="payTip">若需要多个数值相加，则两个数之间加空格（支持无数个空格）</div>
+
+        <div class="item check-item">
+            <span class="label-text">是否有月卡？</span>
+            <input type="checkbox" id="hasCard" onchange="toggleCardDay()">
+        </div>
+
+        <div class="item hide" id="cardDayPanel">
+            <span class="label-text">月卡剩余天数：</span>
+            <input type="number" id="cardDays" min="0" placeholder="正整数">
+        </div>
+
+        <div class="item check-item">
+            <span class="label-text">是否有战令？</span>
+            <input type="checkbox" id="hasBattle" onchange="toggleBattlePanel()">
+        </div>
+
+        <div id="battlePanel" class="hide">
+            <div class="item">
+                <span class="label-text">战令起始时间：</span>
+                <input type="date" id="battleStart">
+            </div>
+            <div class="item">
+                <span class="label-text">战令结束时间：</span>
+                <input type="date" id="battleEnd">
+            </div>
+            <div class="item check-item">
+                <span class="label-text">是否购买了进阶战令？</span>
+                <input type="checkbox" id="isAdvBattle">
+            </div>
+        </div>
+
+        <div class="item check-item">
+            <span class="label-text">是否有双倍游园币？</span>
+            <input type="checkbox" id="hasDouble" onchange="toggleDoublePanel()">
+        </div>
+        <div id="doublePanel" class="hide">
+            <div class="item">
+                <span class="label-text">双倍起始时间：</span>
+                <input type="date" id="doubleStart">
+            </div>
+            <div class="item">
+                <span class="label-text">双倍结束时间：</span>
+                <input type="date" id="doubleEnd">
+            </div>
+        </div>
+
+        <div class="item check-item">
+            <span class="label-text">是否有假日卡？</span>
+            <input type="checkbox" id="hasHoliday" onchange="toggleHolidayPanel()">
+        </div>
+        <div class="item hide" id="holidayPanel">
+            <span class="label-text">假日卡剩余天数：</span>
+            <input type="number" id="holidayDays" min="0" placeholder="正整数">
+        </div>
+        <div class="tip-text">（若在氪金及其他所得中已算入假日卡，则不必勾选该项）</div><br>
+
+        <div class="item">
+            <span class="label-text">你最终需要多少积分？</span>
+            <input type="number" id="targetScore" min="0" placeholder="可不填">
+        </div>
+        <div class="target-tip">（可不填，不影响计算总积分）</div>
+    </div>
+
+    <button onclick="calc()">开始计算</button>
+    <div id="result"></div>
+    <div id="judgeResult" class="judge-result"></div>
+    <!-- 底部版权 -->
+    <div class="bottom-info">
+        由 <span class="bottom-author">S七月s_</span> 制作，希望真的有用<br>
+        暂时未发现bug，如有遇到可以反馈<br>
+        有新限定时，应该会进行更新
+        <!-- 分割间距+计时模块 -->
+        <div style="margin-top:12px;">
+            <div style="font-size:15px; color:#555; margin:4px 0; font-weight:bold;">剧情模式上一次剧情更新是</div>
+            <div id="timeDiffText" style="font-size:26px; color:#ff0000; font-weight:bold; line-height:1.8;"></div>
+            <div style="font-size:14px;color:#666;margin:4px 0;">周年庆和春节期间，该功能停用</div>
+        </div>
+    </div>
+</div>
+
+<!-- 计算器B：快速积分查询 -->
+<div id="calcB" class="box hide">
+    <button class="switch-btn" onclick="toggleMenu(event)">🔄</button>
+    <!-- 给h2加style，取消默认上边距，文字向上靠 -->
+    <h2 style="margin-top: 0;">快速积分查询</h2>
+    <!-- 表格1：机能装备配件积分表 - 紫色边框 -->
+    <table class="query-table table-1">
+        <thead>
+        <tr>
+            <th>商品名称</th>
+            <th>配件</th>
+            <th>积分</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span onclick="showTip('名称：幽影摄魂\n类别：弓弩类武器\n耐久值：1000\n攻击力：550-850\n幽：攻击附加200点额外伤害\n影：每次攻击命中目标后叠加一层印记，叠满3层后清除印记并追加450点额外伤害和减速，印记有持续时间\n摄魂：每5次攻击会对范围内的目标施加摄魂buff，持续约2秒，不免疫摄魂的目标会强制打断攻击且无法行动，攻击被摄魂的目标额外造成800点额外伤害并解除摄魂\n*材质为五金')"
+                  style="color:#409eff;cursor:pointer;text-decoration:underline;">幽影摄魂</span></td>
+            <td></td>
+            <td>98888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：动能滑轮组\n效果：攻击有20%概率附加500点额外伤害')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">动能滑轮组</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：狩影箭台\n效果：\n最大和最小攻击力+150\n蓄力时间-30%，伤害+10%\n[狩影]：每次攻击命中目标后叠加一层印记，叠满6层后清除层数并追加1000点额外伤害，印记有持续时间')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">狩影箭台</span></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：机能头盔\n属性：生命值+200\n[套装效果]：受到攻击后，增加75%移速，持续2秒，期间免疫减速\n随从可装备该套装')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">机能头盔</span></td>
+            <td></td>
+            <td>28888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：机能拓展程序\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">机能拓展程序</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：机能上衣\n属性：生命值+320\n减伤：普通伤害减免+25%\n防弹：子弹伤害减免+40%\n[套装效果]：受到攻击后，增加75%移速，持续2秒，期间免疫减速\n随从可装备该套装')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">机能上衣</span></td>
+            <td></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：生命拓展插件\n效果：生命上限+60，普通伤害减免+5%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">生命拓展插件</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：机能反应堆\n效果：生命上限+200，伤害+5%，普通伤害减免+5%\n[裂变]：受到攻击后，对敌人施加buff，降低其10%攻击力和50%移速，持续2秒（仅尼克装备时可触发）\n\n注：听说该buff与年兽战鼓的震慑buff无法共存，同时只能施加一种')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">机能反应堆</span></td>
+            <td>48888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：机能护腿\n属性：生命值+280\n减伤：普通伤害减免+25%\n防弹：子弹伤害减免+40%\n[套装效果]：受到攻击后，增加75%移速，持续2秒，期间免疫减速\n随从可装备该套装')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">机能护腿</span></td>
+            <td></td>
+            <td>48888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：机能拓展芯片\n效果：移速+5%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">机能拓展芯片</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：机能推进器\n效果：生命上限+200，伤害+5%，移速+5%，蓄力移速+5%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">机能推进器</span></td>
+            <td>38888</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- 表格2：龙炎装备配件积分表 - 橙色边框 -->
+    <table class="query-table table-2">
+        <thead>
+        <tr>
+            <th>商品名称</th>
+            <th>配件</th>
+            <th>积分</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span onclick="showTip('名称：牢炎铳\n类别：火铳类武器\n耐久：1000\n攻击力：850\n龙炎：攻击附加200点额外伤害和减速\n炎爆：每3次攻击会发射一颗特殊子弹，造成850点额外伤害和减速，并施加灼烧buff，每秒造成120点额外伤害，持续2秒\n战意：发射特殊子弹后，叠加一层战意，每层+1%攻击力和5%移速，上限5层，持续约7秒\n*材质为点金\n\n听见你说，限五看龙铳～')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">牢炎铳</span></td>
+            <td></td>
+            <td>98888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：高能燃烧室\n效果：攻击有20%概率附加500点额外伤害\n注：炎爆不触发该效果')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">高能燃烧室</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：龙炎收容仓\n效果：攻击力+100\n[龙怒]：体力消耗-10%，后摇-10%\n[龙肃]：每5次攻击会在目标处召唤炎龙，对范围内的目标造成600点额外伤害，炎龙存在期间每秒对范围内的目标造成200点额外伤害和减速，持续3秒\n[龙威]：炎龙存在时，每秒还将对范围内的召唤生物额外造成200点额外伤害\n\n抄袭星核这一块）')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">龙炎收容仓</span></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：龙炎头盔\n属性：生命值+200\n[套装效果]：每秒对自身周围的敌人造成100点额外伤害')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">龙炎头盔</span></td>
+            <td></td>
+            <td>28888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：龙炎拓展程序\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">龙炎拓展程序</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：龙炎铠甲\n属性：生命值+320\n减伤：普通伤害减免+25%\n龙息：牢炎铳伤害+5%\n[套装效果]：每秒对自身周围的敌人造成100点额外伤害')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">龙炎铠甲</span></td>
+            <td></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：炎盾拓展插件\n效果：受到攻击时，对伤害来源造成200点额外伤害')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">炎盾拓展插件</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：龙吟结晶\n效果：生命上限+300，每受到10次伤害，获得炎龙守护，持续20秒\n[炎龙守护]：立即获得200点护盾（可刷新但不叠加，可正常享受伤害减免），伤害+5%，每5秒回复15点生命值')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">龙吟结晶</span></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：龙炎腿甲\n属性：生命值+280\n减伤：普通伤害减免+25%\n龙息：牢炎铳伤害+5%\n[套装效果]：每秒对自身周围的敌人造成100点额外伤害')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">龙炎腿甲</span></td>
+            <td></td>
+            <td>48888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：减伤拓展芯片\n效果：普通伤害减免+5%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">减伤拓展芯片</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：龙吟装甲板\n效果：生命上限+200，普通伤害减免+5%，移速+5%，蓄力移速+10%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">龙吟装甲板</span></td>
+            <td>38888</td>
+        </tr>
+        </tbody>
+    </table>
+    <!-- 表格3：年兽装备配件积分表 - 红色边框 -->
+    <table class="query-table table-3">
+        <thead>
+        <tr>
+            <th>商品名称</th>
+            <th>配件</th>
+            <th>积分</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span onclick="showTip('名称：年兽战鼓\n类别：锤类武器\n耐久：1500\n攻击力：400\n战鼓：攻击附加200点额外伤害（可破甲）和减速\n重锤：攻击命中2次后，下一次攻击范围翻倍（前两次未命中目标则不会计入次数）\n鼓舞：攻击（未命中也能触发）会为范围内的友方单位（包括自己）叠加一层士气，每层+1%攻击和3%移速，最多10层，持续约5秒\n震慑：攻击会为命中的敌人叠加一层震慑，每层-2%攻击力，最多10层，持续约15秒\n节奏：蓄力不降低移速（但限五貌似都有这个buff，只是不一定写进去）\n*材质为球金\n\n注：听说震慑buff与机能上衣的甲301减攻buff不能共存，同时只能施加一种')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">年兽战鼓</span></td>
+            <td></td>
+            <td>98888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：祥瑞鼓身\n效果：攻击有25%概率附加400点额外伤害（可破甲...吧）\n隐藏效果：体力消耗-10%？（忘记具体数值了，反正有减体力消耗就是了）')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">祥瑞鼓身</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：震岳不息杵\n效果：攻击力+80，攻击每命中目标4次后，召唤年兽王原地持续锤击4次，每次对范围内的目标造成400点额外伤害（可破甲）')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">震岳不息杵</span></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：年兽头盔\n属性：生命值+200\n[套装效果]：召唤小夕助战，血量5000，攻击力666-888（有一个远程攻击），普通伤害减免+30%，不受威压，战败后60秒重返战场\n年兽之威：小夕每次攻击命中后，自己+5%攻击力，最多10层，持续10秒\n祥瑞之音：小夕可以释放一次以自身为中心的范围攻击，命中目标后回复自身500点生命值并提高自身移速\n年兽护体：小夕战败后，立即给主控回复500点生命值并给一个buff，持续期间内，每5秒回复20血，攻击力+5%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">年兽头盔</span></td>
+            <td></td>
+            <td>38888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：年兽拓展程序\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">年兽拓展程序</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：年兽铠甲\n属性：生命值+320\n减伤：普通伤害减免+25%\n振奋：年兽战鼓伤害+5%\n[套装效果]：召唤小夕助战，血量5000，攻击力666-888（有一个远程攻击），普通伤害减免+30%，不受威压，战败后60秒重返战场\n年兽之威：小夕每次攻击命中后，自己+5%攻击力，最多10层，持续10秒\n祥瑞之音：小夕可以释放一次以自身为中心的范围攻击，命中目标后回复自身500点生命值并提高自身移速\n年兽护体：小夕战败后，立即给主控回复500点生命值并给一个buff，持续期间内，每5秒回复20血，攻击力+5%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">年兽铠甲</span></td>
+            <td></td>
+            <td>68888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：年兽拓展插件\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">年兽拓展插件</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：年兽核能装置\n效果：生命上限+400，普通伤害减免+10%\n\n 年兽套：我chovy，我甲301的被动技能呢？你出甲301给我出好的啊！')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">年兽核能装置</span></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：年兽腿甲\n属性：生命值+280\n减伤：普通伤害减免+25%\n振奋：年兽战鼓伤害+5%\n[套装效果]：召唤小夕助战，血量5000，攻击力666-888（有一个远程攻击），普通伤害减免+30%，不受威压，战败后60秒重返战场\n年兽之威：小夕每次攻击命中后，自己+5%攻击力，最多10层，持续10秒\n祥瑞之音：小夕可以释放一次以自身为中心的范围攻击，命中目标后回复自身500点生命值并提高自身移速\n年兽护体：小夕战败后，立即给主控回复500点生命值并给一个buff，持续期间内，每5秒回复20血，攻击力+5%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">年兽腿甲</span></td>
+            <td></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：年兽拓展芯片\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">年兽拓展芯片</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：年兽膝甲\n效果：生命上限+400，移速+5%，蓄力移速+10%\n\n 年兽套：我chovy，我腿301的伤害加成呢？你出腿301给我出好的啊！')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">年兽膝甲</span></td>
+            <td>38888</td>
+        </tr>
+        </tbody>
+    </table>
+    <!-- 表格4：星空装备配件积分表 - 天蓝色边框 -->
+    <table class="query-table table-4">
+        <thead>
+        <tr>
+            <th>商品名称</th>
+            <th>配件</th>
+            <th>积分</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span onclick="showTip('名称：星空之刃\n类别：刀斧类武器\n耐久：1500\n攻击力：800\n[近战形态]\n星云：攻击附加200点额外伤害\n星光：手持星刀时，移速+15%（听说有bug，实际加成为25%），蓄力不减移速\n流星：每次攻击后+20%移速（远近均可触发，不需要命中目标），持续2秒\n[远程形态]\n星源：蓄力0.25秒（听说的）后本次攻击切换为远程形态，会向指定方向发射一道贯穿剑气，对路径上的目标造成1000点额外伤害。若目标未持有星源buff，则挂上星源buff；反之，则消耗星源buff，追加600点额外伤害\n*材质为星金')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星空之刃</span></td>
+            <td></td>
+            <td>128888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：永恒刀镡\n效果：攻击有20%概率附加500点额外伤害\n\n注：远程攻击的剑气不触发该效果')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">永恒刀镡</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('lingyu_core')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">领域核心</span></td>
+            <td>68888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：星空头盔\n属性：生命值+200\n[套装效果]：每6秒回复30血，体力上限+25%，体力恢复速度+50%，在星空之刃的领域内获得额外加成：星空之刃攻击力+30%，自身移速+50%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星空头盔</span></td>
+            <td></td>
+            <td>28888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：星空拓展程序\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星空拓展程序</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：星空铠甲\n属性：生命值+320\n减伤：普通伤害减免+25%\n星源：星空之刃伤害+10%\n[套装效果]：每6秒回复30血，体力上限+25%，体力恢复速度+50%，在星空之刃的领域内获得额外加成：星空之刃攻击力+30%，自身移速+50%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星空铠甲</span></td>
+            <td></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：星空拓展插件\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星空拓展插件</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：星空之翼\n效果：生命值+200，普通伤害减免+10%\n[星翼]：移速+10%\n[载具]:改造（就是把这个配件装到星空甲上）后可以使用星空之翼移动（目前最强坐骑，移速快还不耗耐久）\n[星炮]：进入战斗后，每0.5秒向敌人发射一个直线飞行的子弹，造成200点伤害（但好像不吃加成）')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星空之翼</span></td>
+            <td>68888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：星空腿甲\n属性：生命值+280\n减伤：普通伤害减免+25%\n星源：星空之刃伤害+10%\n[套装效果]：每6秒回复30血，体力上限+25%，体力恢复速度+50%，在星空之刃的领域内获得额外加成：星空之刃攻击力+30%，自身移速+50%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星空腿甲</span></td>
+            <td></td>
+            <td>48888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：星空拓展芯片\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星空拓展芯片</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：星空膝甲\n效果：生命上限+200，伤害+5%，移速+5%，蓄力移速+10%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星空膝甲</span></td>
+            <td>38888</td>
+        </tr>
+        </tbody>
+    </table>
+    <!-- 表格5：星核装备配件积分表 - 蓝绿色边框 -->
+    <table class="query-table table-5">
+        <thead>
+        <tr>
+            <th>商品名称</th>
+            <th>配件</th>
+            <th>积分</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span onclick="showTip('名称：焱霜星核\n类别：火铳类武器\n耐久：1500\n攻击力：800\n随机发射焱、霜、星3种子弹\n焱：攻击附加燃烧状态，持续2秒，成功施加燃烧状态则追加200点额外伤害\n霜：发射冰霜射线贯穿路径上的目标，造成1000点额外伤害并附加冰霜状态，持续2秒，目标持有冰霜状态时移速降低\n星：攻击附加400点额外伤害\n焱霜：当由星核施加的燃烧状态与冰霜状态结合时，消除这两种状态并追加600点额外伤害\n*材质为碑金\n\n注：若敌人有冰霜状态，则火弹命中会直接触发600额外伤害，但本身的200额外伤害会因为燃烧状态没能成功挂上而消失，同理，敌人身上的冰霜状态被火弹消除后，减速也会提前解除')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">焱霜星核</span></td>
+            <td></td>
+            <td>98888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：星核聚能装置\n效果：攻击有20%概率附加500点额外伤害\n\n注：冰射线不触发该效果')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星核聚能装置</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：星核熵增核心\n效果：攻击力+100，体力消耗-10%，精准度+35%，后摇-10%\n[星陨]：每5次攻击会在目标处降下一颗行星，对范围内的目标造成600点额外伤害并形成2秒黑洞，黑洞能对范围内的目标造成最多3次200点额外伤害和减速')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星核熵增核心</span></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：星核头盔\n属性：生命值+200\n[套装效果]：攻击力+10%，移速+10%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星核头盔</span></td>
+            <td></td>
+            <td>28888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：星核拓展程序\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星核拓展程序</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：星核铠甲\n属性：生命值+320\n减伤：普通伤害减免+25%\n星核：焱霜星核伤害+5%\n[套装效果]：攻击力+10%，移速+10%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星核铠甲</span></td>
+            <td></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：星核拓展插件\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星核拓展插件</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：星核炉\n效果：生命上限+200，普通伤害减免+5%\n[星炉]：每受到1次攻击，叠加一层buff，每层+1%伤害和5%移速，最多5层，持续30秒\n[充能]：每受到10次攻击（不确定扣血能不能触发），回复200点生命值')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星核炉</span></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：星核腿甲\n属性：生命值+280\n减伤：普通伤害减免+25%\n星核：焱霜星核伤害+5%\n[套装效果]：攻击力+10%，移速+10%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星核腿甲</span></td>
+            <td></td>
+            <td>48888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：星核拓展芯片\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星核拓展芯片</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：星核护膝\n效果：生命上限+200，普通伤害减免+5%，移速+5%，蓄力移速+5%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">星核护膝</span></td>
+            <td>38888</td>
+        </tr>
+        </tbody>
+    </table>
+    <!-- 表格6：九霄装备配件积分表 - 黄色边框 -->
+    <table class="query-table table-6">
+        <thead>
+        <tr>
+            <th>商品名称</th>
+            <th>配件</th>
+            <th>积分</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span onclick="showTip('名称：九霄雷烬\n类别：长枪类武器\n耐久：1000\n攻击力：650\n九霄：攻击会对目标所在处追加小范围的600点额外伤害\n雷烬：雷枪落地后会停留在原地，每秒持续对周围的敌人造成200点额外伤害和减速，持续5秒，该伤害不可叠加\n急速：蓄力不减移速（还是那句话，限五貌似都有这个效果，只是不一定写进来）\n*材质为鸣金')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">九霄雷烬</span></td>
+            <td></td>
+            <td>98888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：电尾追霄柄\n效果：攻击有20%概率附加500点额外伤害')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">电尾追霄柄</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：锁雷烬影枪\n效果：攻击力+100，体力消耗-10%\n[烬影]：靠近场地中存在的雷枪时，获得烬影buff，使自身攻击力+10%，移速+50%，持续3秒')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">锁雷烬影枪</span></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：九霄头盔\n属性：生命值+200\n[套装效果]：进入战斗后，每2秒在自身周围随机位置降下落雷，对范围内的目标造成500点额外伤害，若自身在装备了雷脊霄雷炉时受到了落雷攻击，则回复200点生命值并获得爆发加速（可能是50%，不确定）')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">九霄头盔</span></td>
+            <td></td>
+            <td>28888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：九霄拓展程序\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">九霄拓展程序</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：九霄铠甲\n属性：生命值+320\n减伤：普通伤害减免+25%\n烬：九霄雷烬伤害+5%\n[套装效果]：进入战斗后，每2秒在自身周围随机位置降下落雷，对范围内的目标造成500点额外伤害，若自身在装备了雷脊霄雷炉时受到了落雷攻击，则回复200点生命值并获得爆发加速（可能是50%，不确定）')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">九霄铠甲</span></td>
+            <td></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：九霄拓展插件\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">九霄拓展插件</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：雷脊霄雷炉\n效果：生命上限+200，普通伤害减免+5%\n雷炉：每受到1次攻击，叠加一层buff，每层+2%伤害，最多5层，持续30秒\n雷脊：每受到1次攻击，对伤害来源造成200点额外伤害和减速\n霄雷：受到雷击时，自身回复200点生命值并获得爆发加速（环境落雷和套装效果落雷均可触发该效果）\n')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">雷脊霄雷炉</span></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：九霄腿甲\n属性：生命值+280\n减伤：普通伤害减免+25%\n烬：九霄雷烬伤害+5%\n[套装效果]：进入战斗后，每2秒在自身周围随机位置降下落雷，对范围内的目标造成500点额外伤害，若自身在装备了雷脊霄雷炉时受到了落雷攻击，则回复200点生命值并获得爆发加速（可能是50%，不确定）')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">九霄腿甲</span></td>
+            <td></td>
+            <td>48888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：九霄拓展芯片\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">九霄拓展芯片</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：脉冲烬痕胫\n效果：生命上限+200，普通伤害减免+5%，移速+5%，蓄力移速+10%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">脉冲烬痕胫</span></td>
+            <td>38888</td>
+        </tr>
+        </tbody>
+    </table>
+    <!-- 表格7：极寒装备配件积分表 - 蓝色边框 -->
+    <table class="query-table table-7">
+        <thead>
+        <tr>
+            <th>商品名称</th>
+            <th>配件</th>
+            <th>积分</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span onclick="showTip('名称：极寒裂域\n类别：步枪类武器\n耐久：1500\n攻击力：900\n冰息：攻击会对目标所在处追加小范围的450点额外伤害\n冰镇：每次攻击后，使自身移速提升，持续2秒（攻击未命中也能触发，但加速太少了不明显）\n冰魄：攻击命中目标时叠加一层buff，每层使敌人移速-8%，持续约15秒，叠满6层时清除层数并造成冰封，之后约3秒内无法再对被冰封的目标叠加buff\n冰封：立即造成1000点额外伤害，强制打断攻击且无法移动，持续2秒\n极寒之径：每4次攻击，额外对前方矩形范围内的目标造成600点额外伤害，同时留下一条极寒之径，路径上的目标会每秒受到100点额外伤害，持续2秒\n\n注：极寒之径的伤害在联机副本内的伤害为200点\n*材质为冰晶')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">极寒裂域</span></td>
+            <td></td>
+            <td>128888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：极寒弹芯\n效果：攻击有20%概率附加500点额外伤害')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">极寒弹芯</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：凛冬封域装置\n效果：攻击力+100，体力消耗-10%，后摇-10%\n技能：极寒领域\n持续30秒，冷却60秒\n展开领域，每秒对领域内的目标造成100点额外伤害（打满是32次）并叠加一层冰魄的减速buff\n在领域内，若自身装备全套极寒套，则极寒裂域攻击力+30%，自身每5秒回复150血')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">凛冬封域装置</span></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：极寒头盔\n属性：生命值+200\n[套装效果]：体力上限+25%，体力恢复速度+50%，移速+10%，在极寒领域内获得额外加成：极寒裂域攻击力+30%，自身每5秒回复150血')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">极寒头盔</span></td>
+            <td></td>
+            <td>28888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：极寒拓展程序\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">极寒拓展程序</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：极寒铠甲\n属性：生命值+320\n减伤：普通伤害减免+25%\n极寒：极寒裂域伤害+5%\n[套装效果]：体力上限+25%，体力恢复速度+50%，移速+10%，在极寒领域内获得额外加成：极寒裂域攻击力+30%，自身每5秒回复150血')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">极寒铠甲</span></td>
+            <td></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：极寒拓展插件\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">极寒拓展插件</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：凛冬护盾核心\n效果：生命上限+200，普通伤害减免+5%\n凛冬护佑：每5秒生成一个冰盾，可抵挡一次伤害（听说也可以挡掉本次攻击附带的控制效果，但掉血类dot无法抵挡）')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">凛冬护盾核心</span></td>
+            <td>58888</td>
+        </tr>
+        <tr>
+            <td><span onclick="showTip('名称：极寒腿甲\n属性：生命值+280\n减伤：普通伤害减免+25%\n极寒：极寒裂域伤害+5%\n[套装效果]：体力上限+25%，体力恢复速度+50%，移速+10%，在极寒领域内获得额外加成：极寒裂域攻击力+30%，自身每5秒回复150血')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">极寒腿甲</span></td>
+            <td></td>
+            <td>48888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：极寒拓展芯片\n效果：生命上限+100')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">极寒拓展芯片</span></td>
+            <td>9888</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span onclick="showTip('名称：凛冬动力骨骼\n效果：生命上限+200，普通伤害减免+5%，移速+5%，蓄力移速+5%')"
+                      style="color:#409eff;cursor:pointer;text-decoration:underline;">凛冬动力骨骼</span></td>
+            <td>38888</td>
+        </tr>
+        </tbody>
+    </table>
+    <!-- 表格8：其他商品积分表 - 默认边框 -->
+    <table class="query-table table-8">
+        <thead>
+        <tr>
+            <th>商品名称</th>
+            <th>积分</th>
+            <th>备注</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>娇妻</td>
+            <td>98888</td>
+            <td>娇妻、喵拳、S套一起up</td>
+        </tr>
+        <tr>
+            <td>喵喵拳</td>
+            <td>98888</td>
+            <td>火竿、骨鞭、理疗仪、K套一起up</td>
+        </tr>
+        <tr>
+            <td>烧火竿</td>
+            <td>98888</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>理疗仪</td>
+            <td>98888</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>龙骨鞭</td>
+            <td>98888</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>king上衣</td>
+            <td>32888</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>king裤子</td>
+            <td>32888</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>SWAT头盔</td>
+            <td>22888</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>SWAT衣服</td>
+            <td>36888</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>SWAT裤子</td>
+            <td>32888</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>金手镯</td>
+            <td>8888</td>
+            <td>限购一次，精通好像也是限购一次，除非卡bug</td>
+        </tr>
+        <tr>
+            <td>高级零件箱*10</td>
+            <td>10888</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>狂暴药剂</td>
+            <td>3666</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>恢复药剂</td>
+            <td>3666</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>回血药剂</td>
+            <td>4666</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>[养殖]母猪</td>
+            <td>26666</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>工人服</td>
+            <td>26666</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>工人裤</td>
+            <td>26666</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>水泥*10</td>
+            <td>7888</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>步枪子弹*500</td>
+            <td>4999</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>手枪子弹*500</td>
+            <td>3999</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>《棍棒精通》</td>
+            <td>8999</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>《刀斧精通》</td>
+            <td>9999</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>《匕首精通》</td>
+            <td>9999</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>《锤类精通》</td>
+            <td>9999</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>《火铳精通》</td>
+            <td>16999</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>《鞭类精通》</td>
+            <td>9999</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>银币*888</td>
+            <td>3666</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>II阶血清稳定剂</td>
+            <td>988</td>
+            <td></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- ====================== 所需积分计算器 ====================== -->
+    <div class="calc-title">所需积分计算器</div>
+
+    <div class="option-row">
+        <label class="option-item">
+            <input type="radio" name="calcType" onclick="showNormalCalc()"> 常规计算
+        </label>
+        <label class="option-item">
+            <input type="radio" name="calcType" onclick="showQuickCalc()"> 快捷计算
+        </label>
+    </div>
+
+    <!-- 常规计算 -->
+    <div id="normalCalcPanel" class="hide">
+        <div class="normal-calc-row">
+            <span class="label-text">所需积分：</span>
+            <input type="text" id="needTotal" oninput="calcNeedTotal()">
+            <div id="needResult">0</div>
+        </div>
+    </div>
+
+    <!-- 快捷计算 -->
+    <div id="quickCalcPanel" class="hide">
+        <div class="quick-row">
+            <select id="weaponSel">
+                <option value="">武器：不选</option>
+                <option value="幽影摄魂">幽影摄魂</option>
+                <option value="牢炎铳">牢炎铳</option>
+                <option value="年兽战鼓">年兽战鼓</option>
+                <option value="星空之刃">星空之刃</option>
+                <option value="焱霜星核">焱霜星核</option>
+                <option value="九霄雷烬">九霄雷烬</option>
+                <option value="极寒裂域">极寒裂域</option>
+            </select>
+            <select id="weaponPartSel">
+                <option value="none">无配件</option>
+                <option value="small">小配件</option>
+                <option value="301">301配件</option>
+                <option value="full">满配</option>
+            </select>
+        </div>
+
+        <div class="quick-row">
+            <select id="helmetSel">
+                <option value="">头盔：不选</option>
+                <option value="机能头盔">机能头盔</option>
+                <option value="龙炎头盔">龙炎头盔</option>
+                <option value="年兽头盔">年兽头盔</option>
+                <option value="星空头盔">星空头盔</option>
+                <option value="星核头盔">星核头盔</option>
+                <option value="九霄头盔">九霄头盔</option>
+                <option value="极寒头盔">极寒头盔</option>
+            </select>
+            <select id="helmetPartSel">
+                <option value="no">无配件</option>
+                <option value="have">有配件</option>
+            </select>
+        </div>
+
+        <div class="quick-row">
+            <select id="armorSel">
+                <option value="">胸甲：不选</option>
+                <option value="机能上衣">机能上衣</option>
+                <option value="龙炎铠甲">龙炎铠甲</option>
+                <option value="年兽铠甲">年兽铠甲</option>
+                <option value="星空铠甲">星空铠甲</option>
+                <option value="星核铠甲">星核铠甲</option>
+                <option value="九霄铠甲">九霄铠甲</option>
+                <option value="极寒铠甲">极寒铠甲</option>
+            </select>
+            <select id="armorPartSel">
+                <option value="none">无配件</option>
+                <option value="small">小配件</option>
+                <option value="301">301配件</option>
+                <option value="full">满配</option>
+            </select>
+        </div>
+
+        <div class="quick-row">
+            <select id="legSel">
+                <option value="">腿甲：不选</option>
+                <option value="机能护腿">机能护腿</option>
+                <option value="龙炎腿甲">龙炎腿甲</option>
+                <option value="年兽腿甲">年兽腿甲</option>
+                <option value="星空腿甲">星空腿甲</option>
+                <option value="星核腿甲">星核腿甲</option>
+                <option value="九霄腿甲">九霄腿甲</option>
+                <option value="极寒腿甲">极寒腿甲</option>
+            </select>
+            <select id="legPartSel">
+                <option value="none">无配件</option>
+                <option value="small">小配件</option>
+                <option value="301">301配件</option>
+                <option value="full">满配</option>
+            </select>
+        </div>
+
+        <div style="margin:10px 0; font-size:15px; color:#666; text-align:center;">快捷计算仅适用于限定武器及套装</div>
+        <button class="quick-calc-btn" onclick="calcQuickTotal()">开始计算</button>
+        <div id="quickTotalScore">总积分：0</div>
+    </div>
+    <!-- 底部版权信息（永久在快速查询最底部，不受快捷计算开关影响） -->
+    <div class="bottom-info">
+        由 <span class="bottom-author">S七月s_</span> 制作，希望真的有用<br>
+        暂时未发现bug，如有遇到可以反馈<br>
+        有新限定时，应该会进行更新
+    </div>
+</div> <!-- 这是calcB快速查询盒子的结束标签 -->
+<div id="emptyPage" class="box hide">
+    <button class="switch-btn" onclick="toggleMenu(event)">🔄</button>
+    <h2 style="margin-top: 0;">暂定为介绍各副本的掉落物情况和敌人信息，有其他想法可以私信</h2>
+
+    <div class="bottom-info">
+        由 <span class="bottom-author">S七月s_</span> 制作，希望真的有用<br>
+        暂时未发现bug，如有遇到可以反馈<br>
+        有新限定时，应该会进行更新
+    </div>
+</div>
+
+<script>
+    let currentPage = "home";
+    // 词条弹窗文本库，所有长介绍全部写在这里，支持直接回车换行
+const tipData = {
+    lingyu_core:`名称：领域核心
+效果：攻击力+200，后摇-20%，蓄力时间-25%，体力消耗-20%
+[吸星]：攻击每命中敌人5次（远近均可计入次数）后都会为自身回复100点生命值
+技能：星空领域
+持续30秒，冷却60秒
+展开领域，使领域内的敌人移速-50%，蓄力时间增加，若自身装备了全套星空套，则星空之刃攻击力+30%，自身移速+50%`
+};
+    // 1. 打开/关闭下拉菜单
+function toggleMenu(event){
+    // 获取被点击的按钮元素
+    const btn = event.currentTarget;
+    const menu = document.getElementById("menuList");
+
+    // 获取按钮在页面中的坐标
+    const rect = btn.getBoundingClientRect();
+    // 菜单摆放在按钮左下方，微调偏移量对齐
+    menu.style.left = rect.left + "px";
+    menu.style.top = (rect.bottom + 8) + "px";
+
+    // 展开/收起菜单
+    menu.classList.toggle("hide");
+}
+
+// 2. 页面跳转统一逻辑
+function goPage(pageType){
+    // 关闭下拉菜单
+    document.getElementById("menuList").classList.add("hide");
+    // 所有页面全部先隐藏
+    document.getElementById("calcA").classList.add("hide");
+    document.getElementById("calcB").classList.add("hide");
+    document.getElementById("emptyPage").classList.add("hide");
+
+    //记录当前页面
+    currentPage = pageType;
+
+    // 根据选项跳转页面
+    if(pageType === 'query'){
+        document.getElementById("calcB").classList.remove("hide");
+    }else if(pageType === 'empty'){
+        document.getElementById("emptyPage").classList.remove("hide");
+    }else if(pageType === 'home'){
+        // 返回主页面
+        document.getElementById("calcA").classList.remove("hide");
+    }
+}
+
+// 3. 返回主页面（calcA）
+
+// 可选优化：点击页面空白区域自动收起下拉菜单
+document.body.addEventListener('click', function(e) {
+    const menu = document.getElementById("menuList");
+    // 获取页面上所有左上角切换按钮
+    const allSwitchBtns = document.querySelectorAll(".switch-btn");
+    let clickedBtn = false;
+
+    // 遍历所有按钮，判断点击位置是否命中任意一个切换按钮
+    allSwitchBtns.forEach(btn => {
+        if (btn.contains(e.target)) {
+            clickedBtn = true;
+        }
+    });
+
+    // 只有既没点菜单、也没点任意切换按钮，才收起下拉菜单
+    if (!menu.contains(e.target) && !clickedBtn) {
+        menu.classList.add("hide");
+    }
+});
+    function getTodayStr() {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    window.onload = function() {
+        const todayStr = getTodayStr();
+        document.getElementById("startDate").value = todayStr;
+        document.getElementById("endDate").value = todayStr;
+        document.getElementById("battleStart").value = todayStr;
+        document.getElementById("battleEnd").value = todayStr;
+        document.getElementById("doubleStart").value = todayStr;
+        document.getElementById("doubleEnd").value = todayStr;
+        calcDays();
+    };
+
+    function calcPay() {
+        const val = document.getElementById("payCoin").value.trim();
+        if (!val) {
+            document.getElementById("payResult").innerText = "0";
+            return;
+        }
+        const nums = val.replace(/\s+/g, ' ').split(' ').map(Number).filter(n => !isNaN(n));
+        const sum = nums.reduce((a, b) => a + b, 0);
+        document.getElementById("payResult").innerText = sum;
+    }
+
+    function togglePanel() {
+        const checked = document.getElementById("addCoin").checked;
+        const panel = document.getElementById("extraPanel");
+        panel.classList.toggle("hide", !checked);
+        const todayStr = getTodayStr();
+
+        if(!checked){
+            document.getElementById("startDate").value = todayStr;
+            document.getElementById("endDate").value = todayStr;
+            document.getElementById("battleStart").value = todayStr;
+            document.getElementById("battleEnd").value = todayStr;
+            document.getElementById("doubleStart").value = todayStr;
+            document.getElementById("doubleEnd").value = todayStr;
+
+            document.getElementById("todayGet").checked = false;
+            document.getElementById("payCoin").value = "";
+            document.getElementById("payResult").innerText = "0";
+            document.getElementById("hasCard").checked = false;
+            document.getElementById("cardDays").value = "";
+            document.getElementById("hasBattle").checked = false;
+            document.getElementById("isAdvBattle").checked = false;
+            document.getElementById("hasDouble").checked = false;
+            document.getElementById("hasHoliday").checked = false;
+            document.getElementById("holidayDays").value = "";
+            document.getElementById("targetScore").value = "";
+
+            document.getElementById("cardDayPanel").classList.add("hide");
+            document.getElementById("battlePanel").classList.add("hide");
+            document.getElementById("doublePanel").classList.add("hide");
+            document.getElementById("holidayPanel").classList.add("hide");
+        }
+    }
+
+    function toggleCardDay() {
+        document.getElementById("cardDayPanel").classList.toggle("hide", !document.getElementById("hasCard").checked);
+    }
+    function toggleBattlePanel() {
+        document.getElementById("battlePanel").classList.toggle("hide", !document.getElementById("hasBattle").checked);
+    }
+    function toggleDoublePanel() {
+        document.getElementById("doublePanel").classList.toggle("hide", !document.getElementById("hasDouble").checked);
+    }
+    function toggleHolidayPanel() {
+        document.getElementById("holidayPanel").classList.toggle("hide", !document.getElementById("hasHoliday").checked);
+    }
+
+    function calcDays() {
+        const start = new Date(document.getElementById("startDate").value);
+        const end = new Date(document.getElementById("endDate").value);
+        const days = Math.floor((end - start) / 86400000) + 1;
+        document.getElementById("totalDays").innerText = days > 0 ? days : 0;
+    }
+
+    document.getElementById("startDate").onchange = calcDays;
+    document.getElementById("endDate").onchange = calcDays;
+
+    function isInRange(day, s, e) { return day >= s && day <= e; }
+
+    function calc() {
+        const a = parseInt(document.getElementById("coin").value) || 0;
+        const score = parseInt(document.getElementById("score").value) || 0;
+        const hasAdd = document.getElementById("addCoin").checked;
+        const b = hasAdd ? (parseInt(document.getElementById("payResult").innerText) || 0) : 0;
+        const targetScore = hasAdd ? (parseInt(document.getElementById("targetScore").value) || 0) : 0;
+        const todayGet = document.getElementById("todayGet").checked;
+
+        let dayScoreList = [];
+        let totalAddCoin = 0;
+
+        if (hasAdd) {
+            const start = new Date(document.getElementById("startDate").value);
+            const end = new Date(document.getElementById("endDate").value);
+            const totalDays = Math.floor((end - start) / 86400000) + 1;
+
+            const hasCard = document.getElementById("hasCard").checked;
+            let origD = hasCard ? parseInt(document.getElementById("cardDays").value) || 0 : 0;
+            const hasBattle = document.getElementById("hasBattle").checked;
+            const bStart = hasBattle ? new Date(document.getElementById("battleStart").value) : null;
+            const bEnd = hasBattle ? new Date(document.getElementById("battleEnd").value) : null;
+            const isAdv = document.getElementById("isAdvBattle").checked;
+            const hasDouble = document.getElementById("hasDouble").checked;
+            const dStart = hasDouble ? new Date(document.getElementById("doubleStart").value) : null;
+            const dEnd = hasDouble ? new Date(document.getElementById("doubleEnd").value) : null;
+            const hasHoliday = document.getElementById("hasHoliday").checked;
+            let origG = hasHoliday ? parseInt(document.getElementById("holidayDays").value) || 0 : 0;
+
+            let C = 0, E = 0;
+            let doubleCoverFirst = false;
+            let battleCoverFirst = false;
+
+            for(let i=0; i<totalDays; i++){
+                const d = new Date(start.getTime() + i*86400000);
+                if(hasDouble && isInRange(d, dStart, dEnd)){
+                    C++;
+                    if(i===0) doubleCoverFirst = true;
+                }
+                if(hasBattle && isInRange(d, bStart, bEnd)){
+                    E++;
+                    if(i===0) battleCoverFirst = true;
+                }
+            }
+
+            let B = totalDays;
+            let D = Math.min(origD, B);
+            let G = Math.min(origG, B);
+
+            if(todayGet){
+                B = Math.max(B - 1, 0);
+                C = doubleCoverFirst ? Math.max(C - 1, 0) : C;
+                E = battleCoverFirst ? Math.max(E - 1, 0) : E;
+                D = Math.max(D - 1, 0);
+                D = Math.min(D, B);
+                G = Math.max(G - 1, 0);
+                G = Math.min(G, B);
+            }
+            const F = isAdv ? E : 0;
+
+            totalAddCoin = B*180 + C*180 + D*180 + E*180 + F*360 + G*1000;
+
+            for(let i=0; i<totalDays; i++){
+                const curr = new Date(start.getTime() + i*86400000);
+                if(todayGet && i===0){
+                    dayScoreList.push(0);
+                    continue;
+                }
+                let realI = todayGet ? i-1 : i;
+                let dc = 180;
+                if(hasCard && realI >=0 && realI < D) dc +=180;
+                if(hasBattle && isInRange(curr, bStart, bEnd)) dc += (isAdv ? 540 : 180);
+                if(hasDouble && isInRange(curr, dStart, dEnd)) dc +=180;
+                if(hasHoliday && realI >=0 && realI < G) dc +=1000;
+                dayScoreList.push(Math.floor(dc/30)*196);
+            }
+        }
+
+        const A = a + b;
+        const finalCoin = A + totalAddCoin;
+        const shang = Math.floor(finalCoin / 30);
+        const remain = finalCoin % 30;
+        const totalScore = score + shang * 196;
+
+        document.getElementById("result").innerText =
+            `最终参与计算的币：${finalCoin}\n` +
+            `剩余币：${remain}\n` +
+            `总积分：${totalScore}`;
+
+        const judge = document.getElementById("judgeResult");
+        judge.innerHTML = "";
+
+        if (hasAdd && targetScore > 0) {
+            let current = score + Math.floor(A / 30) * 196;
+            let reachDateStr = null;
+            const startDateObj = new Date(document.getElementById("startDate").value);
+
+            for(let i=0; i<dayScoreList.length; i++){
+                current += dayScoreList[i];
+                if(current >= targetScore){
+                    const dayOffset = i;
+                    const d = new Date(startDateObj.getTime() + dayOffset * 86400000);
+                    const year = d.getFullYear();
+                    const month = String(d.getMonth()+1).padStart(2,'0');
+                    const day = String(d.getDate()).padStart(2,'0');
+                    reachDateStr = `${year}年${month}月${day}日`;
+                    break;
+                }
+            }
+
+            const diff = totalScore - targetScore;
+            if(reachDateStr){
+                judge.innerHTML =
+                    `<span style="color:red">恭喜！你可以凑齐所需积分</span>\n` +
+                    `预计${reachDateStr}可达成目标\n` +
+                    `你还能剩下${diff}积分`;
+            }else{
+                judge.innerHTML =
+                    `<span style="color:red">完辣！还不够！</span>\n\n` +
+                    `还差${-diff}积分`;
+            }
+        }
+    }
+
+    // ====================== 所需积分计算器 ======================
+    function calcNeedTotal() {
+        const val = document.getElementById("needTotal").value.trim();
+        if (!val) {
+            document.getElementById("needResult").innerText = "0";
+            return;
+        }
+        const nums = val.replace(/\s+/g, ' ').split(' ').map(Number).filter(n => !isNaN(n));
+        const sum = nums.reduce((a, b) => a + b, 0);
+        document.getElementById("needResult").innerText = sum;
+    }
+
+    function showNormalCalc() {
+        document.getElementById("normalCalcPanel").classList.remove("hide");
+        document.getElementById("quickCalcPanel").classList.add("hide");
+    }
+
+    function showQuickCalc() {
+        document.getElementById("normalCalcPanel").classList.add("hide");
+        document.getElementById("quickCalcPanel").classList.remove("hide");
+    }
+    // ====================== 快捷计算积分数据 ======================
+const itemScore = {
+    // 武器
+    "幽影摄魂": { base:98888, small:9888, mid:58888, full:68776 },
+    "牢炎铳": { base:98888, small:9888, mid:58888, full:68776 },
+    "年兽战鼓": { base:98888, small:9888, mid:58888, full:68776 },
+    "星空之刃": { base:128888, small:9888, mid:68888, full:78776 },
+    "焱霜星核": { base:98888, small:9888, mid:58888, full:68776 },
+    "九霄雷烬": { base:98888, small:9888, mid:58888, full:68776 },
+    "极寒裂域": { base:128888, small:9888, mid:58888, full:68776 },
+
+    // 头盔
+    "机能头盔": { base:28888, part:9888 },
+    "龙炎头盔": { base:28888, part:9888 },
+    "年兽头盔": { base:38888, part:9888 },
+    "星空头盔": { base:28888, part:9888 },
+    "星核头盔": { base:28888, part:9888 },
+    "九霄头盔": { base:28888, part:9888 },
+    "极寒头盔": { base:28888, part:9888 },
+
+    // 胸甲
+    "机能上衣": { base:58888, small:9888, mid:48888, full:58776 },
+    "龙炎铠甲": { base:58888, small:9888, mid:58888, full:68776 },
+    "年兽铠甲": { base:68888, small:9888, mid:58888, full:68776 },
+    "星空铠甲": { base:58888, small:9888, mid:68888, full:78776 },
+    "星核铠甲": { base:58888, small:9888, mid:58888, full:68776 },
+    "九霄铠甲": { base:58888, small:9888, mid:58888, full:68776 },
+    "极寒铠甲": { base:58888, small:9888, mid:58888, full:68776 },
+
+    // 腿甲
+    "机能护腿": { base:48888, small:9888, mid:38888, full:48776 },
+    "龙炎腿甲": { base:48888, small:9888, mid:38888, full:48776 },
+    "年兽腿甲": { base:58888, small:9888, mid:38888, full:48776 },
+    "星空腿甲": { base:48888, small:9888, mid:38888, full:48776 },
+    "星核腿甲": { base:48888, small:9888, mid:38888, full:48776 },
+    "九霄腿甲": { base:48888, small:9888, mid:38888, full:48776 },
+    "极寒腿甲": { base:48888, small:9888, mid:38888, full:48776 },
+};
+
+// 快捷计算主逻辑（优化版：支持空选）
+function calcQuickTotal() {
+    const w = document.getElementById("weaponSel").value;
+    const wp = document.getElementById("weaponPartSel").value;
+    const h = document.getElementById("helmetSel").value;
+    const hp = document.getElementById("helmetPartSel").value;
+    const a = document.getElementById("armorSel").value;
+    const ap = document.getElementById("armorPartSel").value;
+    const l = document.getElementById("legSel").value;
+    const lp = document.getElementById("legPartSel").value;
+
+    let score = 0;
+
+    // 武器
+    if (w) {
+        score += itemScore[w].base;
+        if (wp === "small") score += itemScore[w].small;
+        else if (wp === "301") score += itemScore[w].mid;
+        else if (wp === "full") score += itemScore[w].full;
+    }
+
+    // 头盔
+    if (h) {
+        score += itemScore[h].base;
+        if (hp === "have") score += itemScore[h].part;
+    }
+
+    // 胸甲
+    if (a) {
+        score += itemScore[a].base;
+        if (ap === "small") score += itemScore[a].small;
+        else if (ap === "301") score += itemScore[a].mid;
+        else if (ap === "full") score += itemScore[a].full;
+    }
+
+    // 腿甲
+    if (l) {
+        score += itemScore[l].base;
+        if (lp === "small") score += itemScore[l].small;
+        else if (lp === "301") score += itemScore[l].mid;
+        else if (lp === "full") score += itemScore[l].full;
+    }
+
+    document.getElementById("quickTotalScore").innerText = "总积分：" + score;
+}
+</script>
+<div id="tipModal" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:999;
+    background:rgba(0,0,0,0.35);
+    padding:16px;
+    align-items:center;
+    justify-content:center;
+">
+    <div id="tipContentBox" style="
+        background:#ffffff;
+        border:3px solid #409eff;
+        border-radius:14px;
+        max-width:calc(100% - 32px);
+        width:540px;
+        padding:20px;
+        position:relative;
+    ">
+        <span id="tipCloseBtn" style="
+            position:absolute;
+            top:10px;
+            right:14px;
+            font-size:24px;
+            cursor:pointer;
+            color:#666;
+        ">×</span>
+        <div id="tipText" style="font-size:16px;line-height:1.7;color:#222;white-space: pre-line;"></div>
+    </div>
+</div>
+<script>
+    // ==========【唯一修改处】修改这里即可更换起始时间==========
+    // 🔘计时器开关 true=正常运行  false=临时停用计时器
+    let timerSwitch = false;
+
+    // 格式：new Date(年份, 月份-1, 日期, 时, 分, 秒)
+    // 1月30日 = 月份填0；7月30日 = 月份填6
+    const startTimestamp = new Date(2026, 0, 30, 0, 0, 0).getTime();
+    // ==========================================================
+
+    function updateCountTime() {
+        // 开关关闭就直接退出，停止计时
+        if(!timerSwitch){
+            document.getElementById("timeDiffText").innerText = "暂停使用";
+            return;
+        }
+
+        const nowTime = Date.now();
+        const totalMs = nowTime - startTimestamp;
+
+        const day = Math.floor(totalMs / (1000 * 60 * 60 * 24));
+        const hour = Math.floor((totalMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minute = Math.floor((totalMs % (1000 * 60 * 60)) / (1000 * 60));
+        const second = Math.floor((totalMs % (1000 * 60)) / 1000);
+
+        document.getElementById("timeDiffText").innerText = `${day}天${hour}小时${minute}分钟${second}秒前`;
+    }
+
+    updateCountTime();
+    setInterval(updateCountTime, 1000);
+
+    // ==========词条弹窗逻辑，全部包裹DOMContentLoaded==========
+document.addEventListener('DOMContentLoaded', function(){
+    const tipModal = document.getElementById("tipModal");
+    const tipText = document.getElementById("tipText");
+    const tipCloseBtn = document.getElementById("tipCloseBtn");
+
+    function showTip(key){
+    // 仅快速积分查询页(query)允许弹窗，其他页面点击无效果
+    if(currentPage !== 'query'){
+        return;
+    }
+    let infoText;
+    // 如果tipData里面有这个key，就读取字典内容
+    if(tipData[key]){
+        infoText = tipData[key];
+    }else{
+        // 兼容旧代码：直接把传入的字符串作为显示文本
+        infoText = key;
+    }
+    if(!infoText){
+        return;
+    }
+    tipText.innerText = infoText;
+    tipModal.style.display = "flex";
+}
+
+    function closeTip(){
+        tipModal.style.display = "none";
+    }
+
+    tipModal.addEventListener("click",function(e){
+        if(e.target === tipModal){
+            closeTip();
+        }
+    })
+    tipCloseBtn.addEventListener("click",closeTip);
+
+    //暴露为全局函数，给html onclick调用
+    window.showTip = showTip;
+})
+</script>
+</body>
+</html>
+
+
+
+
+
+
