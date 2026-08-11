@@ -5,11 +5,6 @@ on:
     branches: [main, master]
     tags: ['v*']
   workflow_dispatch:
-    inputs:
-      sign:
-        description: '尝试签名 (需配置 secrets: P12_BASE64, P12_PASSWORD, MOBILEPROVISION_BASE64)'
-        type: boolean
-        default: false
 
 jobs:
   build:
@@ -17,9 +12,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_*.app || true
 
       - name: Print environment
         run: |
@@ -31,15 +23,12 @@ jobs:
         run: brew install xcodegen
 
       - name: Generate Xcode project
-        run: |
-          xcodegen generate
-
-      - name: Show generated project
-        run: ls -la
+        run: xcodegen generate
 
       - name: Build archive (unsigned)
         run: |
           mkdir -p build
+          set -o pipefail
           xcrun xcodebuild archive \
             -project AresPointsCalculator.xcodeproj \
             -scheme AresPointsCalculator \
@@ -48,77 +37,39 @@ jobs:
             -destination "generic/platform=iOS" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_REQUIRED="NO" \
             CODE_SIGN_IDENTITY="" \
             DEVELOPMENT_TEAM="" \
             PROVISIONING_PROFILE_SPECIFIER="" \
-            | tee build/build-archive.log
+            2>&1 | tee build/build-archive.log
 
-      - name: Export IPA (unsigned, ad-hoc)
+      - name: Verify archive
         run: |
-          cat > build/ExportOptions.plist <<'EOF'
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>ad-hoc</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>compileBitcode</key>
-              <false/>
-              <key>stripSwiftSymbols</key>
-              <true/>
-              <key>thinning</key>
-              <string></string>
-              <key>teamID</key>
-              <string></string>
-          </dict>
-          </plist>
-          EOF
+          ls -la build/AresPointsCalculator.xcarchive/Products/Applications/
+          find build/AresPointsCalculator.xcarchive -name "*.app" | head -3
 
-          mkdir -p build/ipa-output
-          xcrun xcodebuild -exportArchive \
-            -archivePath build/AresPointsCalculator.xcarchive \
-            -exportPath build/ipa-output \
-            -exportOptionsPlist build/ExportOptions.plist \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            DEVELOPMENT_TEAM="" \
-            2>&1 | tee build/export.log || true
-
-      - name: List IPA output
+      - name: Package IPA manually (unsigned)
         run: |
-          ls -la build/ipa-output/ || true
-          find build -name "*.ipa" 2>/dev/null
+          # 直接手动打包，绕过 xcodebuild -exportArchive 的签名要求
+          rm -rf build/Payload build/ipa-output
+          mkdir -p build/Payload build/ipa-output
 
-      - name: Fallback - package IPA manually if export failed
-        run: |
-          if [ ! -f build/ipa-output/*.ipa ]; then
-            echo "Export failed, attempting manual IPA packaging..."
-            mkdir -p build/Payload
-            APP_PATH=$(find build/AresPointsCalculator.xcarchive/Products/Applications -name "*.app" | head -1)
-            if [ -z "$APP_PATH" ]; then
-              echo "No .app found in archive"
-              exit 1
-            fi
-            cp -R "$APP_PATH" build/Payload/
-            cd build
-            zip -r AresPointsCalculator-unsigned.ipa Payload
-            cp AresPointsCalculator-unsigned.ipa ipa-output/
-            cd ..
-            ls -la build/ipa-output/
+          APP_PATH=$(find build/AresPointsCalculator.xcarchive/Products/Applications -name "*.app" | head -1)
+          if [ -z "$APP_PATH" ]; then
+            echo "::error::No .app found in archive"
+            exit 1
           fi
+          echo "Found app: $APP_PATH"
+          cp -R "$APP_PATH" build/Payload/
 
-      - name: Rename IPA
+          cd build
+          zip --symlinks -r ipa-output/AresPointsCalculator.ipa Payload
+          cd ..
+          ls -la build/ipa-output/
+
+      - name: Verify IPA
         run: |
-          cd build/ipa-output
-          IPA_FILE=$(ls *.ipa | head -1)
-          if [ -n "$IPA_FILE" ] && [ "$IPA_FILE" != "AresPointsCalculator.ipa" ]; then
-            mv "$IPA_FILE" AresPointsCalculator.ipa
-          fi
-          ls -la
+          ls -la build/ipa-output/AresPointsCalculator.ipa
+          unzip -l build/ipa-output/AresPointsCalculator.ipa | head -20
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
@@ -133,7 +84,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-logs
-          path: build/*.log
+          path: build/build-archive.log
           if-no-files-found: ignore
           retention-days: 7
 
@@ -145,4 +96,3 @@ jobs:
           generate_release_notes: true
           draft: false
           prerelease: false
-
